@@ -1,0 +1,35 @@
+#!/bin/bash
+# 批量启动hadoop的dfs,yarn,historyserver 组件
+if [[ $# != 1 ]]; then
+	echo "USAGE: $0 start/stop"
+	echo "work well for hadoop2.7.2"
+	exit 1
+fi
+HADOOP_HOME=$HADOOP_HOME
+echo "Hadoop目录是 $HADOOP_HOME"
+
+case $1 in
+"start")
+	echo "================== 启动 hdfs =================="
+	ssh hadoop102 "$HADOOP_HOME/sbin/start-dfs.sh"
+
+	echo "================== 启动 yarn =================="
+	ssh hadoop103 "$HADOOP_HOME/sbin/start-yarn.sh"
+
+	echo "================== 启动 historyserver =================="
+	ssh hadoop102 "$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh start historyserver"
+	;;
+"stop")
+	echo "================== 关闭 historyserver =================="
+	ssh hadoop102 "$HADOOP_HOME/sbin/mr-jobhistory-daemon.sh stop historyserver"
+
+	echo "================== 关闭 yarn =================="
+	ssh hadoop103 "$HADOOP_HOME/sbin/stop-yarn.sh"
+
+	echo "================== 关闭 hdfs =================="
+	ssh hadoop102 "$HADOOP_HOME/sbin/stop-dfs.sh"
+	;;
+*)
+	echo "Input Args Error..."
+	;;
+esac
